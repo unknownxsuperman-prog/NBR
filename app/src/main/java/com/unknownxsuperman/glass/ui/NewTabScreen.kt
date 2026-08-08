@@ -46,15 +46,32 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.unknownxsuperman.glass.R
 import com.unknownxsuperman.glass.ui.theme.AppColors
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.filled.Extension
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Icon
+import androidx.compose.ui.graphics.vector.ImageVector
+import compose.icons.FontAwesomeIcons
+import compose.icons.fontawesomeicons.Brands
+import compose.icons.fontawesomeicons.brands.Youtube
+import compose.icons.fontawesomeicons.brands.Github
+import compose.icons.fontawesomeicons.brands.Twitter
+import compose.icons.fontawesomeicons.brands.Reddit
+import compose.icons.fontawesomeicons.brands.WikipediaW
 
-private data class QuickLink(val label: String, val url: String)
+private data class QuickLink(val label: String, val url: String, val icon: ImageVector)
 
 private val quickLinks = listOf(
-    QuickLink("YouTube", "https://youtube.com"),
-    QuickLink("GitHub", "https://github.com"),
-    QuickLink("X", "https://x.com"),
-    QuickLink("Reddit", "https://reddit.com"),
-    QuickLink("Wikipedia", "https://wikipedia.org"),
+    QuickLink("YouTube", "https://youtube.com", FontAwesomeIcons.Brands.Youtube),
+    QuickLink("GitHub", "https://github.com", FontAwesomeIcons.Brands.Github),
+    QuickLink("X", "https://x.com", FontAwesomeIcons.Brands.Twitter),
+    QuickLink("Reddit", "https://reddit.com", FontAwesomeIcons.Brands.Reddit),
+    QuickLink("Wikipedia", "https://wikipedia.org", FontAwesomeIcons.Brands.WikipediaW),
 )
 
 private val overflowItems = listOf(
@@ -73,7 +90,7 @@ fun NewTabScreen(onSearch: (String) -> Unit, onQuickLink: (String) -> Unit) {
             .fillMaxSize()
             .background(AppColors.Bg)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 18.dp, vertical = 14.dp)
+            .padding(horizontal = 18.dp, vertical = 40.dp)
     ) {
         // ---- top bar ----
         Row(
@@ -81,17 +98,22 @@ fun NewTabScreen(onSearch: (String) -> Unit, onQuickLink: (String) -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Browser", color = AppColors.TextPrimary, fontSize = 24.sp, fontFamily = FontFamily.Serif)
+            Text(text = "Browser", color = AppColors.TextPrimary, fontSize = 28.sp, fontFamily = FontFamily.Serif)
 
             Box {
                 Box(
                     modifier = Modifier
-                        .size(38.dp)
+                        .size(34.dp)
                         .clip(CircleShape)
                         .clickable { menuOpen = true },
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = "⋯", color = AppColors.TextSecondary, fontSize = 20.sp)
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = "More options",
+                        tint = AppColors.TextSecondary,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
 
                 DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
@@ -123,7 +145,7 @@ fun NewTabScreen(onSearch: (String) -> Unit, onQuickLink: (String) -> Unit) {
                 .clip(RoundedCornerShape(100.dp))
                 .background(AppColors.Surface1)
                 .border(1.dp, AppColors.Border, RoundedCornerShape(100.dp))
-                .padding(horizontal = 18.dp),
+                .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             TextField(
@@ -131,7 +153,7 @@ fun NewTabScreen(onSearch: (String) -> Unit, onQuickLink: (String) -> Unit) {
                 onValueChange = { query = it },
                 modifier = Modifier.weight(1f),
                 singleLine = true,
-                placeholder = { Text("Search or type web address", color = AppColors.TextSecondary, fontSize = 14.sp) },
+                placeholder = { Text("Search or type web address", color = AppColors.TextSecondary, fontSize = 18.sp) },
                 textStyle = TextStyle(color = AppColors.TextPrimary, fontSize = 14.sp),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { onSearch(query) }),
@@ -153,13 +175,13 @@ fun NewTabScreen(onSearch: (String) -> Unit, onQuickLink: (String) -> Unit) {
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            QuickTile(label = "browser", isSelf = true) { }
+            QuickTile(label = "browser", isSelf = true, icon = null) { }
             quickLinks.forEach { link ->
-                QuickTile(label = link.label, isSelf = false) { onQuickLink(link.url) }
+                QuickTile(label = link.label, isSelf = false, icon = link.icon) { onQuickLink(link.url) }
             }
         }
 
-        Spacer(modifier = Modifier.height(22.dp))
+        Spacer(modifier = Modifier.height(30.dp))
 
         ShortcutsCard()
 
@@ -172,7 +194,7 @@ fun NewTabScreen(onSearch: (String) -> Unit, onQuickLink: (String) -> Unit) {
 }
 
 @Composable
-private fun RowScope.QuickTile(label: String, isSelf: Boolean, onClick: () -> Unit) {
+private fun RowScope.QuickTile(label: String, isSelf: Boolean, icon: ImageVector?, onClick: () -> Unit) {
     Column(
         modifier = Modifier.weight(1f),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -191,7 +213,14 @@ private fun RowScope.QuickTile(label: String, isSelf: Boolean, onClick: () -> Un
                 Image(
                     painter = painterResource(id = R.drawable.ic_logo_mono),
                     contentDescription = null,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(38.dp)
+                )
+            } else if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = label,
+                    tint = AppColors.TextPrimary,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }
@@ -200,9 +229,19 @@ private fun RowScope.QuickTile(label: String, isSelf: Boolean, onClick: () -> Un
     }
 }
 
+private data class ShortcutItem(val label: String, val icon: ImageVector)
+
+private val shortcutItems = listOf(
+    ShortcutItem("Bookmarks", Icons.Filled.Bookmark),
+    ShortcutItem("Downloads", Icons.Filled.Download),
+    ShortcutItem("Reading list", Icons.AutoMirrored.Filled.ListAlt),
+    ShortcutItem("Extensions", Icons.Filled.Extension),
+    ShortcutItem("History", Icons.Filled.History),
+    ShortcutItem("Settings", Icons.Filled.Settings),
+)
+
 @Composable
 private fun ShortcutsCard() {
-    val items = listOf("Bookmarks", "Downloads", "Reading list", "Extensions", "History", "Settings")
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -211,9 +250,15 @@ private fun ShortcutsCard() {
             .border(1.dp, AppColors.Border, RoundedCornerShape(28.dp))
             .padding(20.dp)
     ) {
-        Text(text = "Shortcuts", color = AppColors.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        Text(
+            text = "Shortcuts",
+            color = AppColors.TextPrimary,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Medium
+        )
         Spacer(modifier = Modifier.height(14.dp))
-        items.chunked(2).forEach { pair ->
+
+        shortcutItems.chunked(2).forEach { pair ->
             Row(modifier = Modifier.fillMaxWidth()) {
                 pair.forEach { item ->
                     Row(
@@ -229,10 +274,15 @@ private fun ShortcutsCard() {
                                 .background(AppColors.Surface3),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(text = "•", color = AppColors.TextSecondary, fontSize = 14.sp)
+                            Icon(
+                                imageVector = item.icon,
+                                contentDescription = item.label,
+                                tint = AppColors.TextSecondary,
+                                modifier = Modifier.size(20.dp)
+                            )
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text(text = item, color = AppColors.TextPrimary, fontSize = 13.sp)
+                        Text(text = item.label, color = AppColors.TextPrimary, fontSize = 13.sp)
                     }
                 }
             }
@@ -250,9 +300,9 @@ private fun PrivacyCard() {
             .border(1.dp, AppColors.Border, RoundedCornerShape(28.dp))
             .padding(20.dp)
     ) {
-        Text(text = "Privacy", color = AppColors.TextPrimary, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+        Text(text = "Privacy", color = AppColors.TextPrimary, fontSize = 20.sp, fontWeight = FontWeight.Medium)
         Spacer(modifier = Modifier.height(14.dp))
-        Text(text = "Trackers & ads blocked", color = AppColors.TextPrimary, fontSize = 13.sp)
+        Text(text = "Trackers & ads blocked", color = AppColors.TextPrimary, fontSize = 16.sp)
         Text(text = "1,048 this week", color = AppColors.TextTertiary, fontSize = 11.sp)
     }
 }
